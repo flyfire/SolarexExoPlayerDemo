@@ -18,7 +18,8 @@ class MainActivity : AppCompatActivity() {
     var playWhenReady = true
     var currentWindow = 0
     var playbackPosition = 0L
-
+    val playbackStateListener = PlaybackStateListener()
+    val playAnalyticsListener = PlayAnalyticsListener()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -56,6 +57,8 @@ class MainActivity : AppCompatActivity() {
         val mediaSource = buildMediaSource(uri)
         player!!.playWhenReady = playWhenReady
         player!!.seekTo(currentWindow, playbackPosition)
+        player!!.addListener(playbackStateListener)
+        player!!.addAnalyticsListener(playAnalyticsListener)
         player!!.prepare(mediaSource, false, false)
     }
 
@@ -69,6 +72,8 @@ class MainActivity : AppCompatActivity() {
             playWhenReady = player!!.playWhenReady
             playbackPosition = player!!.currentPosition
             currentWindow = player!!.currentWindowIndex
+            player!!.removeListener(playbackStateListener)
+            player!!.removeAnalyticsListener(playAnalyticsListener)
             player!!.release()
             player = null
         }
