@@ -55,11 +55,12 @@ class MainActivity : AppCompatActivity() {
         playerView.player = player
         val uri = Uri.parse("https://video.wu-mi.com/original/5ddd71f64acb441586016cd2fb0a9c8c/34bdf26-1710dc0140e.mp4?auth_key=1589868000-1973353835-0-e9a25000327da84074f42777a68c47db")
         val mediaSource = buildMediaSource(uri)
-        player!!.playWhenReady = playWhenReady
         player!!.seekTo(currentWindow, playbackPosition)
         player!!.addListener(playbackStateListener)
         player!!.addAnalyticsListener(playAnalyticsListener)
         player!!.prepare(mediaSource, false, false)
+        player!!.seekTo(3000)
+        player!!.playWhenReady = playWhenReady
     }
 
     private fun buildMediaSource(uri: Uri): MediaSource {
