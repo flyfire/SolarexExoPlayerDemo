@@ -2,9 +2,13 @@ package com.solarexsoft.solarexexoplayerdemo
 
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.PlayerMessage
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -12,7 +16,9 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 
 class MainActivity : AppCompatActivity() {
-
+    companion object {
+        const val TAG = "MainActivity"
+    }
     lateinit var playerView: PlayerView
     private var player: SimpleExoPlayer? = null
     var playWhenReady = true
@@ -33,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        hideSystemUi()
+//        hideSystemUi()
     }
 
     override fun onStop() {
@@ -53,8 +59,20 @@ class MainActivity : AppCompatActivity() {
     private fun initPlayer() {
         player = ExoPlayerFactory.newSimpleInstance(this)
         playerView.player = player
-        val uri = Uri.parse("https://video.wu-mi.com/original/5ddd71f64acb441586016cd2fb0a9c8c/34bdf26-1710dc0140e.mp4?auth_key=1589868000-1973353835-0-e9a25000327da84074f42777a68c47db")
+        val uri = Uri.parse("http://demos.webmproject.org/exoplayer/glass.mp4")
         val mediaSource = buildMediaSource(uri)
+        val target = PlayerMessage.Target { messageType, payload ->
+            Log.d(TAG, "messageType = $messageType")
+            (payload as (() -> Unit)).invoke()
+        }
+        player!!.createMessage(target)
+            .setPosition(3000)
+            .setHandler(Handler(Looper.getMainLooper()))
+            .setPayload({
+                Log.d(TAG, "payload current position = " + player!!.currentPosition)
+            })
+            .setDeleteAfterDelivery(true)
+            .send()
         player!!.seekTo(currentWindow, playbackPosition)
         player!!.addListener(playbackStateListener)
         player!!.addAnalyticsListener(playAnalyticsListener)
